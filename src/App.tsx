@@ -1,42 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { questions } from "./questions";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import "./App.css";
 
 function App() {
-  const [input, setInput] = useState<string>("");
+  const [selected, setSelected] = useState<number>();
 
-  const { transcript, listening, resetTranscript, browserSupportsSpeechRecognition } =
-    useSpeechRecognition();
+  const { transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
   if (!browserSupportsSpeechRecognition) {
     return <span>Browser doesn't support speech recognition.</span>;
   }
 
-  const handleClick = () => {
+  useEffect(() => {
+    SpeechRecognition.startListening({
+      continuous: true,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!transcript) return;
+    if (transcript.toLowerCase().includes("reset")) {
+      handleReset();
+      return;
+    }
     const questionIndex = questions.findIndex((question) =>
-      question.question.toLowerCase().includes(input.toLowerCase())
+      question.question.toLowerCase().includes(transcript.toLowerCase())
     );
     console.log(questionIndex);
     if (questionIndex > -1) {
+      setSelected(questionIndex);
       window.location.hash = questionIndex.toString();
     }
+
+    setTimeout(() => {
+      handleReset();
+    }, 5000);
+  }, [transcript]);
+
+  const handleReset = () => {
+    resetTranscript();
+    setSelected(undefined);
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
-  };
   return (
     <div className="container">
-      <input type="text" onChange={handleChange} value={input} />
-      <button onClick={handleClick}>find</button>
-      <p>Microphone: {listening ? "on" : "off"}</p>
-      <button onClick={() => SpeechRecognition.startListening()}>Start</button>
-      <button onClick={() => SpeechRecognition.stopListening()}>Stop</button>
-      <button onClick={resetTranscript}>Reset</button>
-      <p>{transcript}</p>
+      <div className="fixed-container">
+        <p>Question: {transcript}</p>
+        <button className="button" onClick={() => SpeechRecognition.startListening()}>
+          start
+        </button>
+        <button className="button" onClick={handleReset}>
+          Reset
+        </button>
+      </div>
       {questions.map((question, index) => (
-        <div id={index.toString()} key={index}>
+        <div
+          style={selected == index ? { border: "1px solid red" } : {}}
+          id={index.toString()}
+          key={index}
+        >
           <h1>{question.question}</h1>
           <h2>{question.answer}</h2>
         </div>
