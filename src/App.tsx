@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
-import { questions } from "./questions";
+import Blockchain from "./assets/questions/blockchain.json";
+import Personal from "./assets/questions/personal.json";
+import React from "./assets/questions/react.json";
+import Solidity from "./assets/questions/solidity.json";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import "./App.css";
 
+const categories: any = {
+  blockchain: Blockchain,
+  personal: Personal,
+  react: React,
+  solidity: Solidity,
+};
+
 function App() {
   const [selected, setSelected] = useState<number>();
+  const [selectedCategory, setSelectedCategory] = useState<any[]>(categories.blockchain);
 
   const { transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
@@ -24,10 +35,9 @@ function App() {
       handleReset();
       return;
     }
-    const questionIndex = questions.findIndex((question) =>
+    const questionIndex = selectedCategory.findIndex((question) =>
       question.question.toLowerCase().includes(transcript.toLowerCase())
     );
-    console.log(questionIndex);
     if (questionIndex > -1) {
       setSelected(questionIndex);
       window.location.hash = questionIndex.toString();
@@ -54,13 +64,22 @@ function App() {
           Reset
         </button>
       </div>
-      {questions.map((question, index) => (
+      <div className="category-container">
+        {Object.keys(categories).map((category) => (
+          <button className="button" onClick={() => setSelectedCategory(categories[category])}>
+            {category}
+          </button>
+        ))}
+      </div>
+      {selectedCategory?.map((question: any, index: number) => (
         <div
-          style={selected == index ? { border: "1px solid red" } : {}}
+          style={selected == index ? { border: "1px solid red", padding: "5px" } : {}}
           id={index.toString()}
           key={index}
         >
-          <h1>{question.question}</h1>
+          <h1>
+            {index + 1}) {question.question}
+          </h1>
           <h2>{question.answer}</h2>
         </div>
       ))}
