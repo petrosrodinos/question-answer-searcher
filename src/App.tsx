@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { blockchain } from "./assets/questions/blockchain";
 import { personal } from "./assets/questions/personal";
 import { react } from "./assets/questions/react";
-// import { solidity } from "./assets/questions/solidity";
+import { solidity } from "./assets/questions/solidity";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import { Markup } from "interweave";
 import "./App.css";
@@ -11,12 +11,12 @@ const categories: any = {
   blockchain,
   personal,
   react,
-  // solidity,
+  solidity,
 };
 
 function App() {
   const [selected, setSelected] = useState<number>();
-  const [selectedCategory, setSelectedCategory] = useState<any[]>(categories.react);
+  const [selectedCategory, setSelectedCategory] = useState<any[]>(categories.solidity);
 
   const { transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
@@ -25,9 +25,7 @@ function App() {
   }
 
   useEffect(() => {
-    SpeechRecognition.startListening({
-      continuous: true,
-    });
+    start();
   }, []);
 
   useEffect(() => {
@@ -54,12 +52,25 @@ function App() {
     setSelected(undefined);
   };
 
+  const start = () => {
+    SpeechRecognition.startListening({
+      continuous: true,
+    });
+  };
+
+  const stop = () => {
+    SpeechRecognition.stopListening();
+  };
+
   return (
     <div className="container">
       <div className="fixed-container">
         <p>Question: {transcript}</p>
-        <button className="button" onClick={() => SpeechRecognition.startListening()}>
+        <button className="button" onClick={start}>
           start
+        </button>
+        <button className="button" onClick={stop}>
+          stop
         </button>
         <button className="button" onClick={handleReset}>
           Reset
