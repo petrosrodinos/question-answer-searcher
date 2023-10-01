@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react";
-import Blockchain from "./assets/questions/blockchain.json";
-import Personal from "./assets/questions/personal.json";
-import React from "./assets/questions/react.json";
-import Solidity from "./assets/questions/solidity.json";
+import { blockchain } from "./assets/questions/blockchain";
+import { personal } from "./assets/questions/personal";
+import { react } from "./assets/questions/react";
+// import { solidity } from "./assets/questions/solidity";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { Markup } from "interweave";
 import "./App.css";
 
 const categories: any = {
-  blockchain: Blockchain,
-  personal: Personal,
-  react: React,
-  solidity: Solidity,
+  blockchain,
+  personal,
+  react,
+  // solidity,
 };
 
 function App() {
   const [selected, setSelected] = useState<number>();
-  const [selectedCategory, setSelectedCategory] = useState<any[]>(categories.blockchain);
+  const [selectedCategory, setSelectedCategory] = useState<any[]>(categories.react);
 
   const { transcript, resetTranscript, browserSupportsSpeechRecognition } = useSpeechRecognition();
 
@@ -65,8 +66,12 @@ function App() {
         </button>
       </div>
       <div className="category-container">
-        {Object.keys(categories).map((category) => (
-          <button className="button" onClick={() => setSelectedCategory(categories[category])}>
+        {Object.keys(categories).map((category, index) => (
+          <button
+            key={index}
+            className="button"
+            onClick={() => setSelectedCategory(categories[category])}
+          >
             {category}
           </button>
         ))}
@@ -80,7 +85,8 @@ function App() {
           <h1>
             {index + 1}) {question.question}
           </h1>
-          <h2>{question.answer}</h2>
+          {/* <h2>{question.answer}</h2> */}
+          <Markup content={question.answer} />
         </div>
       ))}
     </div>
